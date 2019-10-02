@@ -81,17 +81,19 @@ int main(int argc, char* argv[]) {
     int res = pcap_next_ex(handle, &header, &packet2);
     if (res == 0) continue;
     if (res == -1 || res == -2) break;
+
     ether_header* temeth = (ether_header*)packet2;
     if(ntohs(temeth -> ether_type) != ETHERTYPE_ARP)
       continue;
+
     arp_header* temarp = (arp_header*)(packet2 + ETH_HLEN);
     if(ntohs(temarp -> arp_op) != ARPOP_REPLY) 
       continue;
-    if(ntohl(arp.arp_spa) != senderip)
+    if(temarp -> arp_spa != senderip)
       continue;
-    memcpy(sendermac, temeth -> ether_shost, ETH_ALEN);
+    memcpy(sendermac, temeth -> ether_shost, ETH_ALEN);    
     
-    printf("sender mac : ");
+    printf("Sender mac : ");
     for(int i=0; i<6; i++)
     {
       printf("%02x", sendermac[i]);
